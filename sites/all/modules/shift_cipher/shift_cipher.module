@@ -42,9 +42,17 @@ function shift_cipher_menu() {
     $items['shift_cipher_results_page'] = array(
         'title' => t('Shift Cipher Results'),
         'page callback' => 'shift_cipher_results',
+        // 'page arguments' => array('shift_cipher_english_form' 'shift_cipher_results'),
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
     );
+
+    // $items['shift_cipher_english_results_page'] = array(
+    //     'title' => t('Shift Cipher to English Results'),
+    //     'page callback' => 'shift_cipher_english_results',
+    //     'access callback' => TRUE,
+    //     'type' => MENU_CALLBACK,
+    // );
 
     return $items;
 }
@@ -81,6 +89,40 @@ function shift_cipher_form() {
 
     return $form;
 }
+
+// function shift_cipher_english_form() {
+//     $form['return_shift_value'] = array(
+//         '#title' => t('Return to English Shift Direction'),
+//         '#description' => t('Please enter the direction you would like to shift your letters.'),
+//         '#type' => 'textfield',
+//         '#element_validate' => array('element_validate_direction'),
+//         '#required' => TRUE,
+//     );
+//
+//     $form['return_shift_direction'] = array(
+//         '#title' => t('Return to English Shift Direction'),
+//         '#description' => t('Please enter the direction you would like to shift your letters.'),
+//         '#type' => 'textfield',
+//         '#element_validate' => array('element_validate_direction'),
+//         '#required' => TRUE,
+//     );
+//
+//     $form['encrypted_phrase'] = array(
+//         '#title' => t('Encrypted Phrase to Return to English'),
+//         '#description' => t('Enter the phrase you would like to return to english.'),
+//         '#type' => 'textfield',
+//         '#element_validate' => array('element_validate_phrase'),
+//         '#required' => TRUE,
+//     );
+//
+//     $form['submit'] = array(
+//         '#type' => 'submit',
+//         '#value' => 'Encrypt!',
+//     );
+//
+//     return $form;
+// }
+
 // VALIDATION
 function element_validate_shift_range($element) {
     if($element['#value'] > 25) {
@@ -136,7 +178,48 @@ function shift_cipher_form_submit($form, &$form_state) {
     $_SESSION['encryption'] = $results;
     $form_state['redirect'] = 'shift_cipher_results_page';
 }
+
+// function shift_cipher_english_form_submit($form, &$form_state) {
+//     global $alphabet;
+//     $encrypted_phrase = strtolower($form_state['values']['encrypted_phrase']);
+//     $split_encrypted_phrase = str_split($encrypted_phrase);
+//     $return_shift = $form_state['values']['return_shift_value'];
+//     $return_direction = strtolower($form_state['values']['return_shift_direction']);
+//     $english_phrase = array();
+//
+//     foreach($split_encrypted_phrase as $letter) {
+//         if(in_array($letter, $alphabet)) {
+//             if($return_direction === 'right') {
+//                 $letter_key = array_search($letter, $alphabet) + $return_shift;
+//                 if($letter_key > 26) {
+//                     $letter_key = $letter_key - 26;
+//                 }
+//                 array_push($english_phrase, $alphabet[$letter_key]);
+//             }
+//
+//             if($return_direction === 'left') {
+//                 $letter_key = array_search($letter, $alphabet) - $return_shift;
+//                 if($letter_key < 1) {
+//                     $letter_key = $letter_key + 26;
+//                 }
+//                 array_push($english_phrase, $alphabet[$letter_key]);
+//             }
+//         } else {
+//             array_push($english_phrase, $letter);
+//         }
+//     }
+//
+//     $english_results = implode('', $english_phrase);
+//     $_SESSION['encrypted_phrase'] = $encrypted_phrase;
+//     $_SESSION['english'] = $english_results;
+//     $form_state['redirect'] = 'shift_cipher_english_results_page';
+// }
+
 // RESULTS DISPLAY
 function shift_cipher_results() {
     return '<p>Encrypted Phrase: ' . $_SESSION['encryption'] . '</p>';
 }
+
+// function shift_cipher_english_results() {
+//     return '<p>You changed ' . $_SESSION['encrypted_phrase'] . ' back to ' . $_SESSION['english'] . '</p>';
+// }
