@@ -84,7 +84,7 @@ function shift_cipher_form() {
 // VALIDATION
 function element_validate_shift_range($element) {
     if($element['#value'] > 25) {
-        form_error($element, t('Please enter a positive number less than 25.'));
+        form_error($element, t('Please enter a positive number less than 25. Anything over that is redundant.'));
     }
 }
 
@@ -92,13 +92,13 @@ function element_validate_direction($element) {
     $lower_case_element = strtolower($element['#value']);
 
     if($lower_case_element !== 'left' && $lower_case_element !== 'right') {
-        form_error($element, t('Please enter either left or right for the shift direction.'));
+        form_error($element, t('Please enter either "left" or "right" for the shift direction.'));
     }
 }
 
 function element_validate_phrase($element) {
     if(!preg_match('/^[a-zA-Z .\?!]+$/i', $element['#value'])) {
-        form_error($element, t('Please enter a phrase using only letters and punctuation. ("." "," "!" "?")'));
+        form_error($element, t('Please enter a phrase using only letters and punctuation. ("." or "," or "!" or "?")'));
     }
 }
 // FORM PROCESSING
@@ -116,6 +116,14 @@ function shift_cipher_form_submit($form, &$form_state) {
                 $letter_key = array_search($letter, $alphabet) + $shift;
                 if($letter_key > 26) {
                     $letter_key = $letter_key - 26;
+                }
+                array_push($encrypted_phrase, $alphabet[$letter_key]);
+            }
+
+            if($direction === 'left') {
+                $letter_key = array_search($letter, $alphabet) - $shift;
+                if($letter_key < 1) {
+                    $letter_key = $letter_key + 26;
                 }
                 array_push($encrypted_phrase, $alphabet[$letter_key]);
             }
