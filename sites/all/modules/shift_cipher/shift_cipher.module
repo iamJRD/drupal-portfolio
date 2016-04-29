@@ -1,0 +1,82 @@
+<?php
+
+function shift_cipher_menu() {
+    $items['shift_cipher'] = array(
+        'title' => t('Shift Cipher'),
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('shift_cipher_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    $items['shift_cipher_results_page'] = array(
+        'title' => t('Shift Cipher Results'),
+        'page callback' => 'shift_cipher_results',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+
+    return $items;
+}
+// MODULE FORM
+function shift_cipher_form() {
+    $form['shift_value'] = array(
+        '#title' => t('Shift Value'),
+        '#description' => t('Please enter how many spots you would like to shift each letter.'),
+        '#type' => 'textfield',
+        '#element_validate' => array('element_validate_integer_positive', 'element_validate_shift_range'),
+        '#required' => TRUE,
+    );
+
+    $form['shift_direction'] = array(
+        '#title' => t('Shift Direction'),
+        '#description' => t('Please enter the direction you would like to shift your letters.'),
+        '#type' => 'textfield',
+        '#element_validate' => array('element_validate_direction'),
+        '#required' => TRUE,
+    );
+
+    $form['phrase'] = array(
+        '#title' => t('Phrase'),
+        '#description' => t('Enter the phrase you would like encrypted.'),
+        '#type' => 'textfield',
+        '#element_validate' => array('element_validate_phrase'),
+        '#required' => TRUE,
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Encrypt!',
+    );
+
+    return $form;
+}
+// VALIDATION
+function element_validate_shift_range($element) {
+    if($element['#value'] < 1 || $element['#value'] > 12) {
+        form_error($element, t('Please enter a positive number between 1 and 12.'));
+    }
+}
+
+function element_validate_direction($element) {
+    $lower_case_element = strtolower($element['#value']);
+
+    if($lower_case_element !== 'left' && $lower_case_element !== 'right') {
+        form_error($element, t('Please enter either left or right for the shift direction.'));
+    }
+}
+
+function element_validate_phrase($element) {
+    if(!preg_match('/^[a-zA-Z .\?!]+$/i', $element['#value'])) {
+        form_error($element, t('Please enter a phrase using only letters and punctuation. ("." "," "!" "?")'));
+    }
+}
+// FORM PROCESSING
+function shift_cipher_form_submit($form, &$form_state) {
+
+    $form_state['redirect'] = 'shift_cipher_results_page';
+}
+// RESULTS DISPLAY
+function shift_cipher_results() {
+
+}

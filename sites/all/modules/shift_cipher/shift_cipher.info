@@ -1,5 +1,5 @@
 name = Shift Cipher
 description = Takes 3 different user inputs to encrypt a phrase using Shift Cipher.
-package = Code Review - Week 2
+package = Code Review
 core = 7.x
 files[] = shift_cipher.module
