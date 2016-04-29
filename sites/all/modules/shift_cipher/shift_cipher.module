@@ -1,5 +1,8 @@
 <?php
 
+global $alphabet;
+$alphabet = array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
+
 function shift_cipher_menu() {
     $items['shift_cipher'] = array(
         'title' => t('Shift Cipher'),
@@ -73,10 +76,19 @@ function element_validate_phrase($element) {
 }
 // FORM PROCESSING
 function shift_cipher_form_submit($form, &$form_state) {
+    $phrase = $form_state['values']['phrase'];
+    $split_phrase = str_split($phrase);
+    $shift = $form_state['values']['shift_value'];
+    $direction = $form_state['values']['shift_direction'];
+    $results = '';
+    // $results = $phrase . ' ' . $shift . ' ' . $direction;
 
+
+
+    $_SESSION['encryption'] = $results;
     $form_state['redirect'] = 'shift_cipher_results_page';
 }
 // RESULTS DISPLAY
 function shift_cipher_results() {
-
+    return '<p>Encrypted Phrase: ' . $_SESSION['encryption'] . '</p>';
 }
