@@ -20,7 +20,7 @@ You will need the following things properly installed on your computer.
 - admin username: `admin`
 - admin password: `admin`
 
-*DISCLAIMER: After the code review, all usernames and passwords are subject to change for privacy.*
+**DISCLAIMER: After the code review, all usernames and passwords are subject to change for privacy.**
 
 ## Known Bugs
 There are currently no known bugs.
