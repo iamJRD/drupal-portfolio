@@ -70,7 +70,7 @@ function shift_cipher_form() {
         '#title' => t('Shift Value'),
         '#description' => t('Please enter how many spots you would like to shift each letter.'),
         '#type' => 'textfield',
-        '#element_validate' => array('element_validate_integer_positive', 'element_validate_shift_range'),
+        '#element_validate' => array('element_validate_integer_positive'),
         '#required' => TRUE,
     );
 
@@ -107,7 +107,7 @@ function shift_cipher_english_form() {
         '#title' => t('Return to English Shift Value'),
         '#description' => t('Please enter how many spots you would like to shift each letter.'),
         '#type' => 'textfield',
-        '#element_validate' => array('element_validate_integer_positive', 'element_validate_shift_range'),
+        '#element_validate' => array('element_validate_integer_positive'),
         '#required' => TRUE,
     );
 
@@ -136,12 +136,6 @@ function shift_cipher_english_form() {
 }
 
 // VALIDATION
-function element_validate_shift_range($element) {
-    if($element['#value'] > 25) {
-        form_error($element, t('Please enter a positive number less than 25. Anything over that is redundant.'));
-    }
-}
-
 function element_validate_direction($element) {
     $lower_case_element = strtolower($element['#value']);
 
@@ -203,15 +197,23 @@ function shift_cipher_english_form_submit($form, &$form_state) {
     $encrypted_phrase = strtolower($form_state['values']['encrypted_phrase']);
     $split_encrypted_phrase = str_split($encrypted_phrase);
     $return_shift = $form_state['values']['return_shift_value'];
+    $return_shift_multiplier = $return_shift / 26;
     $return_direction = strtolower($form_state['values']['return_shift_direction']);
     $english_phrase = array();
+
+    if($return_shift_multiplier < 1) {
+        $return_shift_multiplier = 1;
+    } else {
+        $return_shift_multiplier = floor($return_shift_multiplier);
+    }
+
 
     foreach($split_encrypted_phrase as $letter) {
         if(in_array($letter, $alphabet)) {
             if($return_direction === 'right') {
                 $letter_key = array_search($letter, $alphabet) + $return_shift;
                 if($letter_key > 26) {
-                    $letter_key = $letter_key - 26;
+                    $letter_key = $letter_key - (26 * $return_shift_multiplier);
                 }
                 array_push($english_phrase, $alphabet[$letter_key]);
             }
@@ -219,7 +221,7 @@ function shift_cipher_english_form_submit($form, &$form_state) {
             if($return_direction === 'left') {
                 $letter_key = array_search($letter, $alphabet) - $return_shift;
                 if($letter_key < 1) {
-                    $letter_key = $letter_key + 26;
+                    $letter_key = $letter_key + (26 * $return_shift_multiplier);
                 }
                 array_push($english_phrase, $alphabet[$letter_key]);
             }
