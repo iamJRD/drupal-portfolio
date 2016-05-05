@@ -39,14 +39,6 @@ function shift_cipher_menu() {
         'type' => MENU_NORMAL_ITEM,
     );
 
-    // $items['shift_cipher_results_page'] = array(
-    //     'title' => t('Shift Cipher Results'),
-    //     'page callback' => 'shift_cipher_results',
-    //     // 'page arguments' => array('shift_cipher_english_form' 'shift_cipher_results'),
-    //     'access callback' => TRUE,
-    //     'type' => MENU_CALLBACK,
-    // );
-
     $items['shift_cipher_results_page'] = array(
         'title' => t('Shift Cipher to English Results'),
         'page callback' => 'drupal_get_form',
@@ -64,7 +56,8 @@ function shift_cipher_menu() {
 
     return $items;
 }
-// MODULE FORM
+
+// FORMS
 function shift_cipher_form() {
     $form['shift_value'] = array(
         '#title' => t('Shift Value'),
@@ -149,6 +142,7 @@ function element_validate_phrase($element) {
         form_error($element, t('Please enter a phrase using only letters and punctuation. ("." or "," or "!" or "?")'));
     }
 }
+
 // FORM PROCESSING
 function shift_cipher_form_submit($form, &$form_state) {
     global $alphabet;
@@ -237,10 +231,6 @@ function shift_cipher_english_form_submit($form, &$form_state) {
 }
 
 // RESULTS DISPLAY
-// function shift_cipher_results() {
-//     return '<p>Encrypted Phrase: ' . $_SESSION['encryption'] . '</p>';
-// }
-
 function shift_cipher_english_results() {
     return '<p>You changed <strong>' . $_SESSION['encrypted_phrase'] . '</strong> back to <strong>' . $_SESSION['english'] . '</strong></p>';
 }
