@@ -1,0 +1,48 @@
+<?php
+
+function title_case_menu() {
+    $items['title_case'] = array(
+        'title' => 'Title Case Form',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('title_case_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['title_case_results_page'] = array(
+        'title' => 'Title Case Results',
+        'page callback' => 'title_case_results',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+// FORM
+function title_case_form() {
+    $form['instructions'] = array(
+        '#markup' => t('
+            <p>This form takes a phrase and converts it to "Title Case".</p>
+            <p>Title Case: The first letter of every word is capitalized.</p>
+        '),
+    );
+    $form['inputted_text'] = array(
+        '#title' => 'Pre-Title Case Text',
+        '#type' => 'textfield',
+        '#description' => t('Enter in a string of words and transform it to Title Case. (The first letter of every work is capitalized)'),
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'go',
+    );
+    return $form;
+}
+// FORM PROCESSING
+function title_case_form_submit($form, &$form_state) {
+    $inputted_text = $form_state['values']['inputted_text'];
+
+    $_SESSION['results'] = ucwords($inputted_text);
+    $form_state['redirect'] = 'title_case_results_page';
+}
+// RESULT DISPLAY
+function title_case_results() {
+    return "<p>" . $_SESSION['results'] . "</p>";
+}

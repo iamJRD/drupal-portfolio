@@ -1,0 +1,158 @@
+<?php
+
+function queen_attack_menu() {
+    $items['queen_attack'] = array(
+        'title' => 'Queen Attack Form',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('queen_attack_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['queen_attack_results_page'] = array(
+        'title' => 'Queen Attack Results',
+        'page callback' => 'queen_attack_results',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+// FORM
+function queen_attack_form() {
+    $form['instructions'] = array(
+        '#markup' => t('
+            <p>Imagine a chess board.</p>
+            <p>Now imagine an opponent\'s piece at any spot on the board.</p>
+            <p>You know the spot of your Queen. Now see if she can eliminate him...</p>
+        '),
+    );
+    $form['queen_spot_x'] = array(
+        '#title' => 'Queen Location (Letter)',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the Queen\'s location taken from the bottom of the board. (The X-Axis)'),
+        '#element_validate' => array('element_validate_letter'),
+        '#required' => TRUE,
+    );
+    $form['queen_spot_y'] = array(
+        '#title' => 'Queen Location (Number)',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the Queen\'s location taken from the side of the board. (The Y-Axis)'),
+        '#element_validate' => array('element_validate_integer_positive', 'element_validate_low_range'),
+        '#required' => TRUE,
+    );
+    $form['target_spot_x'] = array(
+        '#title' => 'Target Location (Letter)',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the Target\'s location taken from the bottom of the board. (The X-Axis)'),
+        '#element_validate' => array('element_validate_letter'),
+        '#required' => TRUE,
+    );
+    $form['target_spot_y'] = array(
+        '#title' => 'Target Location (Number)',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the Target\'s location taken from the side of the board. (The Y-Axis)'),
+        '#element_validate' => array('element_validate_integer_positive', 'element_validate_low_range'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Attack!',
+    );
+    return $form;
+}
+// FORM INPUT VALIDATION
+function queen_attack_form_validate($form, &$form_state) {
+    if(($form_state['values']['queen_spot_x'] == $form_state['values']['target_spot_x']) && ($form_state['values']['queen_spot_y'] == $form_state['values']['target_spot_y'])) {
+        form_set_error('queen_spot_x', 'These pieces are on the same spot!');
+    }
+}
+
+function element_validate_letter($element) {
+    $useable_letters = array('A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'f', 'G', 'g', 'H', 'h');
+    foreach($useable_letters as $letter) {
+        if(in_array($element['#value'], $useable_letters) === false) {
+            form_error($element, t('Please enter a single letter between A and H.'));
+        }
+    }
+}
+
+function element_validate_low_range($element) {
+    if($element['#value'] > 8 || $element['#value'] < 0) {
+        form_error($element, t('Please enter a number between 0 and 8.'));
+    }
+}
+// FORM PROCESSING
+function queen_attack_form_submit($form, &$form_state) {
+    $queen_x = $form_state['values']['queen_spot_x'];
+    $queen_y = $form_state['values']['queen_spot_y'];
+    $target_x = $form_state['values']['target_spot_x'];
+    $target_y = $form_state['values']['target_spot_y'];
+    $results = null;
+
+    $queen_x = strtolower($queen_x);
+    $target_x = strtolower($target_x);
+
+    if($queen_x == 'a') {
+        $queen_x = 1;
+    } elseif($queen_x == 'b') {
+        $queen_x = 2;
+    } elseif($queen_x == 'c') {
+        $queen_x = 3;
+    } elseif($queen_x == 'd') {
+        $queen_x = 4;
+    } elseif($queen_x == 'e') {
+        $queen_x = 5;
+    } elseif($queen_x == 'f') {
+        $queen_x = 6;
+    } elseif($queen_x == 'g') {
+        $queen_x = 7;
+    } elseif($queen_x == 'h') {
+        $queen_x = 8;
+    } else {
+        $queen_x = 1000;
+    }
+
+    if($target_x == 'a') {
+        $target_x = 1;
+    } elseif($target_x == 'b') {
+        $target_x = 2;
+    } elseif($target_x == 'c') {
+        $target_x = 3;
+    } elseif($target_x == 'd') {
+        $target_x = 4;
+    } elseif($target_x == 'e') {
+        $target_x = 5;
+    } elseif($target_x == 'f') {
+        $target_x = 6;
+    } elseif($target_x == 'g') {
+        $target_x = 7;
+    } elseif($target_x == 'h') {
+        $target_x = 8;
+    } else {
+        $target_x = 100;
+    }
+
+    $x_value = abs($queen_x - $target_x);
+    $y_value = abs($queen_y - $target_y);
+
+    if($x_value > 7 || $y_value > 7) {
+        $results = 99;
+    } elseif($queen_x == $target_x || $queen_y == $target_y || $x_value == $y_value) {
+        $results = true;
+    } else {
+        $results = false;
+    }
+    $_SESSION['outcome'] = $results;
+
+    $form_state['redirect'] = 'queen_attack_results_page';
+}
+// FORM DISPLAY
+function queen_attack_results() {
+    if($_SESSION['outcome'] === true) {
+        $outcome = "<h1>The Queen takes the other piece!</h1>";
+    } elseif($_SESSION['outcome'] === false) {
+        $outcome = "<h1>The Queen misses!</h1>";
+    } elseif($_SESSION['outcome'] === 99) {
+        $outcome = "<h1>Please enter valid chess board locations!</h1>";
+    }
+    return $outcome;
+}

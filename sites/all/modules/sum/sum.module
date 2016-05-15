@@ -1,0 +1,83 @@
+<?php
+
+function sum_menu() {
+    $items['sum'] = array(
+        'title' => 'Calculate Sum Form',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('sum_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['sum_success_page'] = array(
+        'title' => 'Calculate Sum Results',
+        'page callback' => 'sum_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+// FORM
+function sum_form() {
+    $form['instructions'] = array(
+        '#markup' => t('
+            <p>I was instructed to validate so that the form would only take numbers between -50 and 50, and they must be even.</p>
+            <p>So stick to that unless you want to see error messages!</p>
+        '),
+    );
+    $form['left_number'] = array(
+        '#title' => 'Left number',
+        '#type' => 'textfield',
+        '#description' => t('Please enter a number that abides by the instructions above.'),
+        '#element_validate' => array(
+            'element_validate_number',
+            'element_validate_range',
+            'element_validate_even'
+        ),
+        '#required' => TRUE,
+    );
+    $form['right_number'] = array(
+        '#title' => 'Right number',
+        '#type' => 'textfield',
+        '#description' => t('Please enter a number to add to previous.'),
+        '#element_validate' => array(
+            'element_validate_number',
+            'element_validate_range',
+            'element_validate_even'
+        ),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Calculate Sum',
+    );
+    return $form;
+}
+// VALIDATION
+function element_validate_range($element) {
+    if($element['#value'] > 50 || $element['#value'] < -50) {
+        form_error($element, t('Please enter a number between -50 and 50.'));
+    }
+}
+
+function element_validate_even($element) {
+    if($element['#value'] % 2 != 0) {
+        form_error($element, t('You must enter even numbers only!'));
+    }
+}
+// FORM PROCESSING
+function sum_form_submit($form, &$form_state) {
+    // VALUES
+  $first_number = $form_state['values']['left_number'];
+  $second_number = $form_state['values']['right_number'];
+    // PROCESSING
+  $sum = $first_number + $second_number;
+    // REDIRECTION & PUTTING RESULT IN SESSION
+  $_SESSION['sum_output'] = $sum;
+  $form_state['redirect'] = 'sum_success_page';
+}
+
+// DISPLAY
+function sum_success() {
+    $answer = $_SESSION['sum_output'];
+    return 'You calculated a sum! The answer is: ' . $answer;
+}

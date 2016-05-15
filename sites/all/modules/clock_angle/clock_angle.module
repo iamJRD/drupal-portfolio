@@ -1,0 +1,75 @@
+<?php
+
+function clock_angle_menu(){
+    $items['clock_angle'] = array(
+        'title' => 'Clock Angle Form',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('clock_angle_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['clock_angle_results_page'] = array(
+        'title' => 'Clock Angle Results',
+        'page callback' => 'clock_angle_results',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+// FORM
+function clock_angle_form() {
+    $form['instructions'] = array(
+        '#markup' => t('
+            <p>This form takes in the input for the placement of both hands on an analog clock nd returns the angle between them. (The smallest angle is always returned)</p>
+            <p>An empty "Minute Hand" field will assume that the minute hand is in the "*:00" position.</p>
+        '),
+    );
+    $form['hour_hand'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Hour Hand',
+        '#description' => t('Enter a position for the hour hand as a whole number.'),
+        '#element_validate' => array('element_validate_number', 'element_validate_hour_range'),
+    );
+    $form['minute_hand'] = array(
+        '#type' => 'textfield',
+        '#title' => 'Minute Hand',
+        '#description' => t('Enter a position for the minute hand as a whole number.'),
+        '#element_validate' => array('element_validate_number', 'element_validate_minute_range'),
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Go!',
+    );
+    return $form;
+}
+// FORM INPUT VALIDATION
+function element_validate_hour_range($element){
+    if($element['#value'] < 1 || $element['#value'] > 12){
+        form_error($element, t('Hour must be between 1 - 12'));
+    }
+}
+
+function element_validate_minute_range($element){
+    if($element['#value'] < 0 || $element['#value'] > 60){
+        form_error($element, t('Minute must be between 0 - 60'));
+    }
+}
+// FORM PROCESSING
+function clock_angle_form_submit($form, &$form_state) {
+    $hour_input = $form_state['values']['hour_hand'];
+    $minute_input = $form_state['values']['minute_hand'];
+    $hour_minute_difference = abs((30 * $hour_input) - (5.5 * $minute_input));
+
+    if($hour_minute_difference > 180) {
+        $result = (360 - $hour_minute_difference);
+    } else {
+        $result = $hour_minute_difference;
+    }
+
+    $_SESSION['angle'] = $result;
+    $form_state['redirect'] = 'clock_angle_results_page';
+}
+// RESULT DISPLAY
+function clock_angle_results() {
+    return "<p>The angle between the clock hands is: " . $_SESSION['angle'] . "</p>";
+}

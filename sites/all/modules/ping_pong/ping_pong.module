@@ -1,0 +1,71 @@
+<?php
+
+function ping_pong_menu() {
+    $items['ping_pong'] = array(
+        'title' => 'Ping-Pong Count Up Form',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('ping_pong_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['ping_pong_success_page'] = array(
+        'title' => 'Ping-Pong Results',
+        'page callback' => 'ping_pong_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+// FORM
+function ping_pong_form() {
+    $form['instructions'] = array(
+        '#markup' => t('
+            <p>This form takes in user input and displays a list counting up to that number with a few caveats:</p>
+            <ul>
+                <li>If the number is divisable by <strong>3</strong> then it is replaced with <em>Ping</em></li>
+                <li>If the number is divisable by <strong>5</strong> then it is replaced with <em>Pong</em></li>
+                <li>Although, if the number is divisable by <strong><em>BOTH</em></strong> then it is replaced with <em>Ping-Pong</em></li>
+            </ul>
+        '),
+    );
+    $form['count_goal'] = array(
+        '#title' => 'Count Goal',
+        '#type' => 'textfield',
+        '#description' => t('Please enter the number you want to Ping-Pong up to.'),
+        '#element_validate' => array('element_validate_integer_positive'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Go',
+    );
+    return $form;
+}
+// FORM PROCESSING
+function ping_pong_form_submit($form, &$form_state) {
+    $count_max = $form_state['values']['count_goal'];
+    $pingpong_output = array();
+
+    for($i=1; $i <= $count_max; $i++) {
+        if($i % 3 == 0 && $i % 5 == 0) {
+            array_push($pingpong_output, 'Ping-Pong');
+        } elseif($i % 5 == 0) {
+            array_push($pingpong_output, 'Pong');
+        } elseif($i % 3 == 0) {
+            array_push($pingpong_output, 'Ping');
+        } else {
+            array_push($pingpong_output, $i);
+        }
+    }
+    $_SESSION['ping_pong_output'] = $pingpong_output;
+    $form_state['redirect'] = 'ping_pong_success_page';
+}
+// FORM_DISPLAY
+function ping_pong_success() {
+    $output = '<ul>';
+    foreach($_SESSION['ping_pong_output'] as $value) {
+        $output = $output . '<li>' . $value . '</li>';
+    }
+    $output = $output . '</ul>';
+    return 'Hooray!' . $output;
+}
