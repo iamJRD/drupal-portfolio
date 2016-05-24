@@ -71,5 +71,5 @@ function clock_angle_form_submit($form, &$form_state) {
 }
 // RESULT DISPLAY
 function clock_angle_results() {
-    return "<p>The angle between the clock hands is: " . $_SESSION['angle'] . "</p>";
+    return "<p>The smallest angle between the clock hands is: " . $_SESSION['angle'] . " degrees.</p>";
 }
